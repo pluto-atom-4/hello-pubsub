@@ -38,6 +38,6 @@ public class SubscriberSnippets {
         subscriber.startAsync();
 
         done.get();
-        subscriber.startAsync().awaitTerminated();
+        subscriber.stopAsync().awaitTerminated();
     }
 }
