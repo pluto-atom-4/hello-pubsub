@@ -3,10 +3,11 @@ package internal.example.glcoud.pubsub.snippet;
 import com.google.api.core.ApiFutureCallback;
 import com.google.api.core.ApiFutures;
 import com.google.api.core.SettableApiFuture;
+import com.google.api.gax.core.FixedCredentialsProvider;
+import com.google.api.gax.grpc.ChannelProvider;
+import com.google.cloud.NoCredentials;
 import com.google.cloud.ServiceOptions;
-import com.google.cloud.pubsub.spi.v1.Publisher;
-import com.google.cloud.pubsub.spi.v1.SubscriptionAdminClient;
-import com.google.cloud.pubsub.spi.v1.TopicAdminClient;
+import com.google.cloud.pubsub.spi.v1.*;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.pubsub.v1.PubsubMessage;
 import com.google.pubsub.v1.PushConfig;
@@ -113,5 +114,15 @@ public class ITPubSubSnippets {
         assertNotNull(message);
         assertEquals(message.getData().toStringUtf8(), messageToPublish);
     }
+
+    private ChannelProvider providerForTopic = TopicAdminSettings.defaultChannelProviderBuilder()
+            .setEndpoint(System.getenv("PUBSUB_EMULATOR_HOST"))
+            .setCredentialsProvider(FixedCredentialsProvider.create(NoCredentials.getInstance()))
+            .build();
+
+    private ChannelProvider providerForSubscriber = SubscriptionAdminSettings.defaultChannelProviderBuilder()
+            .setEndpoint(System.getenv("PUBSUB_EMULATOR_HOST"))
+            .setCredentialsProvider(FixedCredentialsProvider.create(NoCredentials.getInstance()))
+            .build();
 
 }
