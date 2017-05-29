@@ -29,6 +29,16 @@ public class ITPubSubSnippets {
 
     private static final String NAME_SUFFIX = UUID.randomUUID().toString();
 
+    private ChannelProvider providerForTopic = TopicAdminSettings.defaultChannelProviderBuilder()
+            .setEndpoint(System.getenv("PUBSUB_EMULATOR_HOST"))
+            .setCredentialsProvider(FixedCredentialsProvider.create(NoCredentials.getInstance()))
+            .build();
+
+    private ChannelProvider providerForSubscriber = SubscriptionAdminSettings.defaultChannelProviderBuilder()
+            .setEndpoint(System.getenv("PUBSUB_EMULATOR_HOST"))
+            .setCredentialsProvider(FixedCredentialsProvider.create(NoCredentials.getInstance()))
+            .build();
+
     @Rule
     public Timeout globalTimeout = Timeout.seconds(300);
 
@@ -43,8 +53,8 @@ public class ITPubSubSnippets {
         SubscriptionName subscriptionName = SubscriptionName
                 .create(ServiceOptions.getDefaultProjectId(), formatForTest("test-subscription"));
 
-        try (TopicAdminClient publisherClient = TopicAdminClient.create();
-             SubscriptionAdminClient subscriberClient = SubscriptionAdminClient.create()) {
+        try (TopicAdminClient publisherClient = TopicAdminClient.create(TopicAdminSettings.defaultBuilder().setChannelProvider(providerForTopic).build());
+             SubscriptionAdminClient subscriberClient = SubscriptionAdminClient.create(SubscriptionAdminSettings.defaultBuilder().setChannelProvider(providerForSubscriber).build())) {
             publisherClient.createTopic(topicName);
             subscriberClient.createSubscription(subscriptionName, topicName, PushConfig.getDefaultInstance(), 0);
 
@@ -61,7 +71,7 @@ public class ITPubSubSnippets {
 
         Publisher publisher = null;
         try {
-            publisher = Publisher.defaultBuilder(topicName).build();
+            publisher = Publisher.defaultBuilder(topicName).setChannelProvider(providerForTopic).build();
             PublisherSnippets snippets = new PublisherSnippets(publisher);
             final SettableApiFuture<Void> done = SettableApiFuture.create();
             ApiFutures.addCallback(
@@ -114,15 +124,5 @@ public class ITPubSubSnippets {
         assertNotNull(message);
         assertEquals(message.getData().toStringUtf8(), messageToPublish);
     }
-
-    private ChannelProvider providerForTopic = TopicAdminSettings.defaultChannelProviderBuilder()
-            .setEndpoint(System.getenv("PUBSUB_EMULATOR_HOST"))
-            .setCredentialsProvider(FixedCredentialsProvider.create(NoCredentials.getInstance()))
-            .build();
-
-    private ChannelProvider providerForSubscriber = SubscriptionAdminSettings.defaultChannelProviderBuilder()
-            .setEndpoint(System.getenv("PUBSUB_EMULATOR_HOST"))
-            .setCredentialsProvider(FixedCredentialsProvider.create(NoCredentials.getInstance()))
-            .build();
 
 }
