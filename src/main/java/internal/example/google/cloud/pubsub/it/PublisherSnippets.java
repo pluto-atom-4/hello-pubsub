@@ -1,9 +1,9 @@
-package internal.example.glcoud.pubsub.snippet;
+package internal.example.google.cloud.pubsub.it;
 
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutureCallback;
 import com.google.api.core.ApiFutures;
-import com.google.cloud.pubsub.spi.v1.Publisher;
+import com.google.cloud.pubsub.v1.Publisher;
 import com.google.protobuf.ByteString;
 import com.google.pubsub.v1.PubsubMessage;
 
